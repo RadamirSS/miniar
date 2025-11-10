@@ -29,20 +29,6 @@ function ResultBadge({r}:{r: Result}){
   return null
 }
 
-function PifagorView({r}:{r:PifagorResult}){
-  return (
-    <div>
-      <table className="table">
-        <tbody>
-          {r.matrix.map((row,i)=>(
-            <tr key={i}>{row.map((cell,j)=>(<td key={j}>{cell||'•'}</td>))}</tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="note">Порядок: 1-4-7 / 2-5-8 / 3-6-9</div>
-    </div>
-  )
-}
 
 export function CalcCard({ calc }: { calc: CalcConfig }){
   const dob = useAppStore(s=>s.dob)
@@ -64,10 +50,9 @@ export function CalcCard({ calc }: { calc: CalcConfig }){
 
       <div className={`panel ${open?'open':''}`}>
         <div style={{marginTop:12}}>
-          {res && res.kind==='pifagor' && <PifagorView r={res as PifagorResult}/>}
           {loading && <div className="note">Загрузка...</div>}
           {err && <div style={{color:'salmon'}}>{err}</div>}
-          {data && res && calc.renderInterpretation(res, data)}
+          {res && calc.renderInterpretation(res, data)}
         </div>
       </div>
     </div>

@@ -1,8 +1,11 @@
 import { DOB } from '@/state/useAppStore'
+import { calculatePifagor, PIFAGOR_STRATEGY, type SquareResult } from '@/lib/pifagor'
+import { PifagorSquare } from '@/components/pifagor/PifagorSquare'
+import { PifagorInsights } from '@/components/pifagor/PifagorInsights'
 
 export type NumberResult = { kind:'number', value:number, key?: string }
 export type NumbersResult = { kind:'numbers', values:number[], key?: string }
-export type PifagorResult = { kind:'pifagor', matrix:number[][], counts: Record<string, number> }
+export type PifagorResult = { kind:'pifagor', squareResult: SquareResult, matrix:number[][], counts: Record<string, number> }
 export type Result = NumberResult | NumbersResult | PifagorResult
 
 export type CalcConfig = {
@@ -38,15 +41,53 @@ function calcLifePath(dob: DOB): NumberResult {
   return { kind:'number', value, key: String(value) }
 }
 
-// 3) Квадрат Пифагора — считаем количество каждой цифры 1..9 в ДДММГГГГ
+// 3) Квадрат Пифагора — используем новый модуль
 function calcPifagor(dob: DOB): PifagorResult {
-  if(!dob) return { kind:'pifagor', matrix: [], counts:{} as Record<string, number> }
-  const s = `${dob.day.toString().padStart(2,'0')}${dob.month.toString().padStart(2,'0')}${dob.year}`
-  const counts: Record<string, number> = { '1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0,'8':0,'9':0 }
-  for (const ch of s) if (counts[ch]!==undefined) counts[ch]++
-  const order = ['1','4','7','2','5','8','3','6','9']
-  const matrix = [0,1,2].map(r => [0,1,2].map(c => counts[order[r*3+c]]))
-  return { kind:'pifagor', matrix, counts }
+  if(!dob) {
+    const emptyCounts: Record<string, number> = { '1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0,'8':0,'9':0 }
+    return { 
+      kind:'pifagor', 
+      squareResult: {
+        counts: emptyCounts,
+        rows: { r147: 0, r258: 0, r369: 0 },
+        diags: { d357: 0, d159: 0 }
+      },
+      matrix: [], 
+      counts: emptyCounts 
+    }
+  }
+  
+  // Формируем строку даты в формате DD.MM.YYYY
+  const dateStr = `${dob.day.toString().padStart(2,'0')}.${dob.month.toString().padStart(2,'0')}.${dob.year}`
+  
+  try {
+    // Используем новый модуль для расчета
+    const squareResult = calculatePifagor(dateStr, PIFAGOR_STRATEGY)
+    
+    // Сохраняем обратную совместимость с matrix
+    const order = ['1','4','7','2','5','8','3','6','9']
+    const matrix = [0,1,2].map(r => [0,1,2].map(c => squareResult.counts[order[r*3+c]] || 0))
+    
+    return { 
+      kind:'pifagor', 
+      squareResult,
+      matrix, 
+      counts: squareResult.counts 
+    }
+  } catch (error) {
+    // В случае ошибки возвращаем пустой результат
+    const emptyCounts: Record<string, number> = { '1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0,'8':0,'9':0 }
+    return { 
+      kind:'pifagor', 
+      squareResult: {
+        counts: emptyCounts,
+        rows: { r147: 0, r258: 0, r369: 0 },
+        diags: { d357: 0, d159: 0 }
+      },
+      matrix: [], 
+      counts: emptyCounts 
+    }
+  }
 }
 
 // 4) Ритм на год — личный год = сумма (день + месяц + целевой год) → 1..9, с учетом составных 13/14/15/21/22
@@ -112,25 +153,16 @@ export const calculators: CalcConfig[] = [
   {
     id: 'pifagor',
     title: 'Квадрат Пифагора',
-    dataUrl: '/data/pifagor.json',
+    dataUrl: '/data/pifagor.json', // Оставляем для обратной совместимости, но не используем
     renderInterpretation: (res, data) => {
       const r = res as PifagorResult
-      const d = (data as any).digits
-      const blocks: JSX.Element[] = []
-      for (const digit of ['1','2','3','4','5','6','7','8','9']) {
-        const count = r.counts[digit] || 0
-        const levelKey = count===0 ? 'X' : digit.repeat(count)
-        const base = d?.[digit]?.base
-        const lvl = d?.[digit]?.levels?.[levelKey] || d?.[digit]?.levels?.[String(count)]
-        blocks.push(
-          <div key={digit} style={{marginTop:10}}>
-            <div className="badge">Цифра {digit}: {levelKey}</div>
-            {base && <pre style={{whiteSpace:'pre-wrap', opacity:.8, marginTop:6}}>{base}</pre>}
-            {lvl && <pre style={{whiteSpace:'pre-wrap', marginTop:6}}>{lvl}</pre>}
-          </div>
-        )
-      }
-      return <div>{blocks}</div>
+      // Используем новые компоненты из модуля pifagor
+      return (
+        <div>
+          <PifagorSquare result={r.squareResult} />
+          <PifagorInsights result={r.squareResult} />
+        </div>
+      )
     }
   },
   {

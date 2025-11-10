@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/app/app.tsx","./src/components/calccard.tsx","./src/components/dateinput.tsx","./src/components/header.tsx","./src/config/calculators.ts","./src/core/date.ts","./src/core/calculators/index.tsx","./src/state/useappstore.ts"],"version":"5.9.3"}
