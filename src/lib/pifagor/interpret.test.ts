@@ -91,5 +91,17 @@ describe('getDigitText', () => {
     // Должен найти уровень для "2222/22222"
     expect(result.level).toBeTruthy();
   });
+
+  it('должен возвращать тексты для цифры 3 с qty = 2', () => {
+    const result = getDigitText(3, 2);
+    expect(result.base).toBeTruthy();
+    expect(result.level).toBeTruthy();
+  });
+
+  it('должен подбирать ближайший уровень для цифры 5 с qty = 4', () => {
+    const result = getDigitText(5, 4);
+    expect(result.base).toBeTruthy();
+    expect(result.level).toBeTruthy();
+  });
 });
 

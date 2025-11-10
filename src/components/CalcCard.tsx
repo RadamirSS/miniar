@@ -36,6 +36,12 @@ export function CalcCard({ calc }: { calc: CalcConfig }){
   const { data, err, loading } = useJson(calc.dataUrl)
   const res = useMemo(()=> dob ? compute(calc.id, dob) : null, [dob, calc.id])
 
+  useEffect(() => {
+    if (res && !err && !loading) {
+      setOpen(true)
+    }
+  }, [res, err, loading])
+
   return (
     <div className="card">
       <div className="accordion-head" onClick={()=>setOpen(o=>!o)} style={{cursor:'pointer'}}>
@@ -52,7 +58,10 @@ export function CalcCard({ calc }: { calc: CalcConfig }){
         <div style={{marginTop:12}}>
           {loading && <div className="note">Загрузка...</div>}
           {err && <div style={{color:'salmon'}}>{err}</div>}
-          {res && calc.renderInterpretation(res, data)}
+          {res && !loading && !err && data && calc.renderInterpretation(res, data)}
+          {res && !loading && !err && !data && (
+            <div className="note">Данные пока не загружены</div>
+          )}
         </div>
       </div>
     </div>

@@ -94,6 +94,28 @@ describe('computeCountsClassic', () => {
     expect(counts).toBeDefined();
     expect(Object.values(counts).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
   });
+
+  it('должен учитывать различные цифры для даты 14.07.1992', () => {
+    const counts = computeCountsClassic(14, 7, 1992);
+    expect(counts['1']).toBeGreaterThan(0);
+    expect(counts['2']).toBeGreaterThan(0);
+    expect(counts['3']).toBeGreaterThan(0);
+    expect(counts['4']).toBeGreaterThan(0);
+    expect(counts['6']).toBeGreaterThan(0);
+    expect(counts['7']).toBeGreaterThan(0);
+    expect(counts['9']).toBeGreaterThan(0);
+  });
+
+  it('должен учитывать разнообразные цифры для даты 23.08.1986', () => {
+    const counts = computeCountsClassic(23, 8, 1986);
+    expect(counts['1']).toBeGreaterThan(0);
+    expect(counts['2']).toBeGreaterThan(0);
+    expect(counts['3']).toBeGreaterThan(0);
+    expect(counts['6']).toBeGreaterThan(0);
+    expect(counts['7']).toBeGreaterThan(0);
+    expect(counts['8']).toBeGreaterThan(0);
+    expect(counts['9']).toBeGreaterThan(0);
+  });
 });
 
 describe('buildSquare', () => {

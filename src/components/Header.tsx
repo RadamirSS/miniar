@@ -1,4 +1,7 @@
+import { useAppStore } from '@/state/useAppStore'
+
 export function Header(){
+  const userName = useAppStore(s => s.userName)
   return (
     <div className="header">
       <div className="logo" aria-hidden>
@@ -8,7 +11,14 @@ export function Header(){
       </div>
       <div>
         <h1>Нумерологический калькулятор</h1>
-        <div className="sub">4 расчёта · локальные расшифровки</div>
+        <div className="sub">
+          4 расчёта · локальные расшифровки
+          {userName && (
+            <span style={{ marginLeft: 8 }}>
+              · {userName}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )

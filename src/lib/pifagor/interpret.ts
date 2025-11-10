@@ -142,9 +142,12 @@ export function getDigitText(digit: number, qty: number): { base: string; level:
     }
   }
   
+  const baseText = digitData.base || '';
+  const ensuredLevel = levelText || baseText;
+  
   return {
-    base: digitData.base || '',
-    level: levelText || ''
+    base: baseText,
+    level: ensuredLevel
   };
 }
 

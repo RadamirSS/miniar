@@ -2,103 +2,111 @@
  * Компонент для отрисовки квадрата Пифагора 3x3
  */
 
-import type { SquareResult } from '@/lib/pifagor/types';
+import { useMemo } from 'react'
+import type { SquareResult } from '@/lib/pifagor/types'
 
 interface PifagorSquareProps {
-  result: SquareResult;
+  result: SquareResult
 }
 
+const order = ['1', '4', '7', '2', '5', '8', '3', '6', '9'] as const
+
 export function PifagorSquare({ result }: PifagorSquareProps) {
-  const { counts, rows, diags } = result;
-  
-  // Порядок отображения в квадрате Пифагора:
-  // Строка 1: 1, 4, 7 (левый столбец)
-  // Строка 2: 2, 5, 8 (средний столбец)
-  // Строка 3: 3, 6, 9 (правый столбец)
-  // То есть порядок: [1, 4, 7, 2, 5, 8, 3, 6, 9]
-  const displayOrder = ['1', '4', '7', '2', '5', '8', '3', '6', '9'];
-  
+  const { counts, rows, diags } = result
+
+  const stats = useMemo(
+    () => [
+      { label: 'Строка 1-4-7', value: rows.r147 },
+      { label: 'Строка 2-5-8', value: rows.r258 },
+      { label: 'Строка 3-6-9', value: rows.r369 },
+      { label: 'Диагональ 3-5-7', value: diags.d357 },
+      { label: 'Диагональ 1-5-9', value: diags.d159 }
+    ],
+    [rows, diags]
+  )
+
   return (
     <div style={{ marginTop: 16 }}>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(3, 1fr)', 
-        gap: 8,
-        maxWidth: 280,
-        margin: '0 auto'
-      }}>
-        {displayOrder.map((digit) => {
-          const count = counts[digit] || 0;
-          
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 12,
+          width: '100%',
+          maxWidth: 320,
+          margin: '0 auto'
+        }}
+      >
+        {order.map((digit) => {
+          const count = counts[digit] || 0
+          const display = count > 0 ? digit.repeat(count) : '•'
+
           return (
             <div
               key={digit}
+              aria-label={`Цифра ${digit}, количество ${count}`}
               style={{
-                border: '1px solid var(--card-border)',
-                borderRadius: 12,
-                padding: 12,
-                textAlign: 'center',
-                background: count > 0 
-                  ? 'rgba(139, 92, 246, 0.1)' 
-                  : 'rgba(255, 255, 255, 0.02)',
-                minHeight: 70,
+                aspectRatio: '1 / 1',
+                borderRadius: 16,
+                position: 'relative',
+                background: count > 0 ? 'rgba(139,92,246,0.14)' : 'rgba(17,17,27,0.35)',
+                border: '1px solid color-mix(in oklab, var(--card-border) 85%, transparent)',
+                boxShadow: count > 0 ? '0 8px 18px rgba(139,92,246,0.18)' : 'none',
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
                 alignItems: 'center',
-                gap: 4
+                justifyContent: 'center',
+                padding: 12,
+                transition: 'background 0.2s ease',
+                textAlign: 'center'
               }}
             >
-              <div style={{ 
-                fontSize: 18, 
-                fontWeight: 600,
-                opacity: count > 0 ? 1 : 0.3
-              }}>
-                {digit}
-              </div>
-              {count > 0 && (
-                <>
-                  <div style={{ 
-                    fontSize: 14, 
-                    opacity: 0.8,
-                    fontFamily: 'ui-monospace, monospace'
-                  }}>
-                    {digit.repeat(count)}
-                  </div>
-                  <div className="badge" style={{ fontSize: 10, marginTop: 4 }}>
-                    ×{count}
-                  </div>
-                </>
-              )}
-              {count === 0 && (
-                <div style={{ fontSize: 20, opacity: 0.2 }}>•</div>
-              )}
+              <span
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace',
+                  fontSize: count >= 4 ? 16 : 20,
+                  letterSpacing: 1,
+                  color: count > 0 ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.35)'
+                }}
+              >
+                {display}
+              </span>
             </div>
-          );
+          )
         })}
       </div>
-      
-      {/* Линии и диагонали */}
-      <div style={{ 
-        marginTop: 20, 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: 12,
-        justifyContent: 'center'
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 120 }}>
-          <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Строки:</div>
-          <div className="badge">1-4-7: {rows.r147}</div>
-          <div className="badge">2-5-8: {rows.r258}</div>
-          <div className="badge">3-6-9: {rows.r369}</div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 120 }}>
-          <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Диагонали:</div>
-          <div className="badge">3-5-7: {diags.d357}</div>
-          <div className="badge">1-5-9: {diags.d159}</div>
-        </div>
+
+      <div
+        style={{
+          marginTop: 20,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 12
+        }}
+      >
+        {stats.map((item) => (
+          <div
+            key={item.label}
+            style={{
+              borderRadius: 12,
+              border: '1px solid var(--card-border)',
+              padding: '10px 14px',
+              background: 'rgba(255,255,255,0.03)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: 13
+            }}
+          >
+            <span style={{ opacity: 0.75 }}>{item.label}</span>
+            <span className="badge" style={{ fontWeight: 600 }}>
+              {item.value}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
-  );
+  )
 }
 
