@@ -1,0 +1,33 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Node / Vite / React
+node_modules/
+dist/
+build/
+.cache/
+.vite/
+.eslintcache
+*.map
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Tests / coverage
+coverage/
+
+# Env & secrets
+.env
+.env.*
+*.key
+*.pem
+api.env
+config.json
+secret_*.json
+node_modules
