@@ -31,3 +31,6 @@ api.env
 config.json
 secret_*.json
 node_modules
+node_modules
+dist
+.DS_Store
